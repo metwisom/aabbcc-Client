@@ -5,6 +5,7 @@ import Unavailable from './route/unavailable.tsx';
 import Index from './route';
 import {RequireSign} from './helpers/requiresign.tsx';
 import AuthPage from './route/authPage.tsx';
+import RegisterPage from "./route/register.tsx";
 
 
 function Router() {
@@ -12,6 +13,10 @@ function Router() {
     {
       path: '/auth',
       element: <AuthPage/>,
+    },
+    {
+      path: '/register',
+      element: <RegisterPage/>,
     },
     {
       path: '',

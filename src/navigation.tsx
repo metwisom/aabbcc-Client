@@ -3,8 +3,9 @@ import styled from 'styled-components';
 import HomeOutlined from '@mui/icons-material/HomeOutlined';
 import TimelineOutlinedIcon from '@mui/icons-material/TimelineOutlined';
 import DashboardCustomizeOutlinedIcon from '@mui/icons-material/DashboardCustomizeOutlined';
+import {setCredentials} from "./services/authSlice.ts";
+import {useDispatch} from "react-redux";
 const Nav = styled.nav`
-
   border-right: 1px solid #575757;
   width: 97px;
   & a {
@@ -29,13 +30,10 @@ const Nav = styled.nav`
     background: #cfcfcf;
     color: #2b2b2b;
   }
-  & a.active {
-    background: #777777;
-    color: #2b2b2b;
-  }
 `;
 
 function Navigation() {
+  let dispatch = useDispatch();
   return <Nav>
     <NavLink  className={({ isActive, isPending }) =>
       isPending ? "pending" : isActive ? "active" : ""
@@ -47,6 +45,9 @@ function Navigation() {
       isPending ? "pending" : isActive ? "active" : ""
     } to={'/speed'}><DashboardCustomizeOutlinedIcon/>Настройки</NavLink>
     <NavLink to={'/weather'}>Погода</NavLink>
+    <div onClick={() => dispatch(setCredentials({'token': null}))}>
+      Выход
+    </div>
   </Nav>;
 }
 

@@ -7,14 +7,14 @@ import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 import '@fontsource/roboto/900.css';
-import {api} from './services/data.ts';
-import {ApiProvider} from '@reduxjs/toolkit/query/react';
 import Router from './router.tsx';
+import {store} from "./services/store.ts";
+import {Provider} from "react-redux";
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <ApiProvider api={api}>
+      <Provider store={store}>
       <Router/>
-    </ApiProvider>
+    </Provider>
   </React.StrictMode>,
 );

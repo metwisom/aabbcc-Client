@@ -1,94 +1,48 @@
 import {createApi, fetchBaseQuery} from '@reduxjs/toolkit/query/react';
-
-
-export interface Post {
-  aspect: string;
-  value: string;
-  time: string
-}
-
-export interface Auth {
-  login: string;
-  password: string;
-}
-
-type PostsResponse = {items: Post[]}
+import {RootState} from "./store.ts";
+import {LoginRequest, LoginResponse, RegisterResponse} from "./auth.ts";
+import {AspectResponse} from "./aspect.ts";
 
 export const api = createApi({
-  baseQuery: fetchBaseQuery({baseUrl: 'http://127.0.0.1:45214/'}),
-  tagTypes: ['Post','Auth'],
+  baseQuery: fetchBaseQuery({
+    baseUrl: 'http://127.0.0.1:45214/',
+    prepareHeaders: (headers, { getState }) => {
+      headers.set('Content-Type', 'application/json')
+      const token = (getState() as RootState).auth.token
+      if (token) {
+        headers.set('authorization', `Bearer ${token}`)
+      }
+      return headers
+    },
+  }),
+  tagTypes: ['Register'],
   endpoints: (build) => ({
-    getPosts: build.query<PostsResponse, void>({
-      query: () => 'data',
-      providesTags: (result) =>
-        result
-          ? [
-            ...result.items.map(({aspect}) => ({type: 'Post' as const, aspect})),
-            {type: 'Post', id: 'LIST'},
-          ]
-          : [{type: 'Post', id: 'LIST'}],
+    getData: build.mutation<AspectResponse, void>({
+      query: (body) => ({
+        url: `data`,
+        method: 'GET',
+        body,
+      })
     }),
-    addAuth: build.mutation<Auth, Partial<Auth>>({
+    addAuth: build.mutation<LoginResponse, LoginRequest>({
       query: (body) => ({
         url: `auth`,
         method: 'POST',
         body,
-        headers: {
-          "Content-Type": "application/json",
-          "test": "test1"
-        }
-      }),
-      invalidatesTags: [{type: 'Auth', id: 'LIST'}],
+      })
     }),
-    addPost: build.mutation<Auth, Partial<Auth>>({
+    register: build.mutation<RegisterResponse, LoginRequest>({
       query: (body) => ({
-        url: `posts`,
+        url: `register`,
         method: 'POST',
         body,
       }),
-      invalidatesTags: [{type: 'Post', id: 'LIST'}],
-    }),
-    getPost: build.query<Post, string>({
-      query: (id) => `posts/${id}`,
-      providesTags: (result, error, id) => [{type: 'Post', id}],
-    }),
-    updatePost: build.mutation<void, Pick<Post, 'id'> & Partial<Post>>({
-      query: ({id, ...patch}) => ({
-        url: `posts/${id}`,
-        method: 'PUT',
-        body: patch,
-      }),
-      async onQueryStarted({id, ...patch}, {dispatch, queryFulfilled}) {
-        const patchResult = dispatch(
-          api.util.updateQueryData('getPost', id, (draft) => {
-            Object.assign(draft, patch);
-          }),
-        );
-        try {
-          await queryFulfilled;
-        } catch {
-          patchResult.undo();
-        }
-      },
-      invalidatesTags: (result, error, {id}) => [{type: 'Post', id}],
-    }),
-    deletePost: build.mutation<{ success: boolean; id: number }, number>({
-      query(id) {
-        return {
-          url: `posts/${id}`,
-          method: 'DELETE',
-        };
-      },
-      invalidatesTags: (result, error, id) => [{type: 'Post', id}],
     }),
   }),
 });
 
 export const {
-  useGetPostQuery,
-  useGetPostsQuery,
+  useRegisterMutation,
+  useGetDataMutation,
   useAddAuthMutation,
-  useAddPostMutation,
-  useUpdatePostMutation,
-  useDeletePostMutation,
 } = api;

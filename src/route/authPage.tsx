@@ -1,70 +1,68 @@
 import {
-  Button,
-  Checkbox,
-  FormControlLabel,
-  Grid,
-  Paper,
-  TextField,
-  Typography,
+    Button,
+    Grid,
+    Paper,
+    TextField,
+    Typography,
 } from '@mui/material';
-import {Link} from 'react-router-dom';
+import {NavLink, useNavigate} from 'react-router-dom';
 import styled from 'styled-components';
-import {Auth, useAddAuthMutation} from '../services/data.ts';
+import {useAddAuthMutation} from '../services/data.ts';
 import {useState} from 'react';
 
-const Logo = styled.h1`
-  font-size: 50px;
-  font-weight: 900;
-  font-style: italic;
-  font-family: monospace;
-  text-align: center;
-  & > .f1 {
-    color: #d12c2c;
-  }
-  & > .f2 {
-    color: #1a771a;
-  }
-  & > .f3 {
-    color: #6161db;
-  }
+import Logos from "../assets/logo.svg"
+import {useDispatch} from "react-redux";
+import { setCredentials } from '../services/authSlice'
+import {LoginRequest} from "../services/auth.ts";
+
+const Logo = styled.img`
+    width: 300px;
+    display: block;
+    margin: 100px auto;
 `
 
-function AuthPage(){
+function AuthPage() {
 
-  const [addAuth] = useAddAuthMutation();
 
-  const authInitial: Auth = {"login":"22","password":"2"}
-  const [authData] = useState<Auth>(authInitial);
+    const dispatch = useDispatch()
+    const navigate = useNavigate()
 
-  const paperStyle={padding :20,width:280, margin:"20px auto"}
-  const btnstyle={margin:'8px 0'}
-  return <>
-    <Grid>
-      <Logo><span className={'f1'}>aa</span><span className={'f2'}>BB</span><span className={'f3'}>cc</span></Logo>
-      <Paper elevation={10} style={paperStyle}>
+    const [addAuth] = useAddAuthMutation();
+
+    const authInitial: LoginRequest = {"login": "22", "password": "2"}
+    const [authData, setAuthData] = useState<LoginRequest>(authInitial);
+
+    const handleChange = ({target: {name, value}}: React.ChangeEvent<HTMLInputElement>) =>
+        setAuthData((prev:LoginRequest)=> ({...prev, [name]: value}))
+
+
+    const paperStyle = {padding: 20, width: 280, margin: "20px auto"}
+    const btnstyle = {margin: '8px 0'}
+    return <>
         <Grid>
-          <h2>Вход</h2>
+            <Logo src={Logos} alt="Your SVG"/>
+            <Paper elevation={10} style={paperStyle}>
+                <Grid>
+                    <h2>Вход</h2>
+                </Grid>
+                <TextField onChange={handleChange} name={"login"} label='Логин' placeholder='' variant="outlined"
+                           fullWidth required/>
+                <TextField onChange={handleChange} name={"password"} label='Пароль' placeholder='' variant="outlined"
+                           fullWidth required type='password'/>
+                <Button onClick={async () => {
+                    const user = await addAuth(authData).unwrap()
+                    dispatch(setCredentials(user))
+                    navigate('/')
+                }} type='submit' color='primary' variant="contained"
+                        style={btnstyle} fullWidth>Войти</Button>
+                <Typography>
+                    <NavLink to="/register">
+                        Регистрация
+                    </NavLink>
+                </Typography>
+            </Paper>
         </Grid>
-        <TextField label='Логин' placeholder='' variant="outlined" fullWidth required/>
-        <TextField label='Пароль' placeholder='' type='password' variant="outlined" fullWidth required/>
-        <FormControlLabel
-          control={
-            <Checkbox
-              name="checkedB"
-              color="primary"
-            />
-          }
-          label="Remember me"
-        />
-        <Button onClick={() => addAuth(authData)} type='submit' color='primary' variant="contained" style={btnstyle} fullWidth>Sign in</Button>
-        <Typography >
-          <Link to="#" >
-            Регистрация
-          </Link>
-        </Typography>
-      </Paper>
-    </Grid>
-  </>
+    </>
 }
 
 export default AuthPage
