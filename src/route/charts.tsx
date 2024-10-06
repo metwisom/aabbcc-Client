@@ -67,7 +67,21 @@ function Charts() {
 
         data = {
             labels: Object.keys(list['AvailableRam']).map(value => new Date(Date.parse(value)).toLocaleTimeString()),
-            datasets: [{
+            datasets: [
+                {
+                    label: 'Temp',
+                    data: Object.values(list['Temp']).map(value => parseFloat(value) * 1000),
+                    fill: false,
+                    borderColor: '#9f7411',
+                    tension: 0.1,
+                },
+                {
+                    label: 'Hum',
+                    data: Object.values(list['Hum']).map(value => parseFloat(value) * 1000),
+                    fill: false,
+                    borderColor: '#9f7411',
+                    tension: 0.1,
+                },{
                 label: 'FreeRam',
                 data: Object.values(list['FreeRam']).map(value => parseFloat(value) / 1000),
                 fill: false,
